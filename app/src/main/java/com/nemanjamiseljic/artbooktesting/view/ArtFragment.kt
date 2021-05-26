@@ -58,7 +58,20 @@ class ArtFragment @Inject constructor(
 
     private fun subscribeToObservers() {
         viewMode.artList.observe(viewLifecycleOwner,{
-            artRecyclerAdapter.arts = it
+            if(it.isEmpty()){
+                binding?.apply {
+//                    recyclerViewArt.visibility = View.GONE
+                    emptyListArtText.visibility = View.VISIBLE
+                }
+
+            }else{
+                binding?.apply {
+//                    recyclerViewArt.visibility = View.VISIBLE
+                    emptyListArtText.visibility = View.GONE
+                }
+                artRecyclerAdapter.arts = it
+            }
+
         })
     }
     override fun onDestroy() {

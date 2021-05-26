@@ -1,11 +1,13 @@
 package com.nemanjamiseljic.artbooktesting.view
 
+import android.app.ActivityManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -22,15 +24,18 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ImageApiFragment @Inject constructor(
-    private val imageRecyclerAdapter: ImageRecyclerAdapter
+     val imageRecyclerAdapter: ImageRecyclerAdapter
     ) : Fragment(R.layout.fragment_image_api) {
 
 
-    private val viewModel: ArtViewModel by activityViewModels()
+//    private val viewModel: ArtViewModel by activityViewModels()
+
+    lateinit var viewModel: ArtViewModel
 
     private var binding: FragmentImageApiBinding? = null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity()).get(ArtViewModel::class.java)
 
         binding = FragmentImageApiBinding.bind(view)
 

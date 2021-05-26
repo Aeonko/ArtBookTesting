@@ -75,7 +75,6 @@ class ArtViewModel @ViewModelInject constructor(
             imageUrl = selectedImage.value ?: ""
         )
         insertArt(art = art)
-        setSelectedImage("")
         insertArtMsg.postValue(Resource.success(data = art))
     }
 

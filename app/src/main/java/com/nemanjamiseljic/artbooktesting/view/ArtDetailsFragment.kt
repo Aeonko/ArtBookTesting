@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.nemanjamiseljic.artbooktesting.R
@@ -18,34 +19,38 @@ import javax.inject.Inject
 
 class ArtDetailsFragment @Inject constructor(
     val glide: RequestManager
-): Fragment(R.layout.fragment_art_details) {
+) : Fragment(R.layout.fragment_art_details) {
     private val TAG by lazy { ArtDetailsFragment::class.java.name }
 
-    private val viewModel : ArtViewModel by activityViewModels()
+    lateinit var viewModel: ArtViewModel
+
+    //    val viewModel : ArtViewModel by activityViewModels()
     private var binding: FragmentArtDetailsBinding? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = ViewModelProvider(requireActivity()).get(ArtViewModel::class.java)
         binding = FragmentArtDetailsBinding.bind(view)
 
         subscribeToObservers()
 
         binding?.apply {
+            glide.load(R.drawable.image_place_holder).into(artImageView)
             artImageView.setOnClickListener {
                 findNavController().navigate(ArtDetailsFragmentDirections.actionArtDetailsFragmentToImageApiFragment())
             }
 
         }
 
-        val callback= object : OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 findNavController().popBackStack()
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(callback)
 
-        binding?.saveButton?.setOnClickListener{
+        binding?.saveButton?.setOnClickListener {
             viewModel.makeArt(
                 name = binding?.nameText?.text.toString(),
                 artistName = binding?.artistText?.text.toString(),
@@ -54,11 +59,12 @@ class ArtDetailsFragment @Inject constructor(
         }
     }
 
-    private fun subscribeToObservers(){
+    private fun subscribeToObservers() {
         viewModel.selectedImageUrl.observe(viewLifecycleOwner, { url ->
             Log.d(TAG, "subscribeToObservers: $url")
             binding?.let {
-                glide.load(url).into(it.artImageView)
+                glide.load(if (url.isNotEmpty()) url else R.drawable.image_place_holder)
+                    .placeholder(R.drawable.image_place_holder).into(it.artImageView)
             }
         })
 
@@ -67,10 +73,12 @@ class ArtDetailsFragment @Inject constructor(
                 Status.SUCCESS -> {
                     Toast.makeText(requireContext(), "Success", Toast.LENGTH_LONG).show()
                     findNavController().popBackStack()
+                    viewModel.setSelectedImage("")
                     viewModel.resetInsertArtMsg()
                 }
                 Status.ERROR -> {
-                    Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_LONG)
+                        .show()
                 }
                 Status.LOADING -> {
 
